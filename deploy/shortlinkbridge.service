@@ -1,0 +1,18 @@
+[Unit]
+Description=Short Link Bridge (queue processor)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/var/www/shortlinkbridge
+ExecStart=/usr/bin/dotnet /var/www/shortlinkbridge/ShortLinkBridge.Api.dll
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=DOTNET_ENVIRONMENT=Production
+User=shortlinks
+Group=shortlinks
+
+[Install]
+WantedBy=multi-user.target
