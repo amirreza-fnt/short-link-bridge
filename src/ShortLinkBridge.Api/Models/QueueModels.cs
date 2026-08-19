@@ -1,23 +1,9 @@
 namespace ShortLinkBridge.Api.Models;
 
-public enum QueueItemStatus : byte
-{
-    Pending = 0,
-    Processing = 1,
-    Done = 2,
-    Failed = 3
-}
-
 public sealed class ShortLinkQueueItem
 {
-    public long Id { get; init; }
-    public string SourceSchema { get; init; } = "dbo";
-    public string SourceTable { get; init; } = string.Empty;
-    public string SourceKeyColumn { get; init; } = string.Empty;
-    public string SourceKeyValue { get; init; } = string.Empty;
+    public Guid PointId { get; init; }
     public string LongUrl { get; init; } = string.Empty;
-    public string TargetColumn { get; init; } = string.Empty;
-    public int AttemptCount { get; init; }
 }
 
 public sealed class ProcessQueueResult
