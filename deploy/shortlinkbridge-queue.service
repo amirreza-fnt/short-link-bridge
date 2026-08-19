@@ -1,0 +1,9 @@
+[Unit]
+Description=Process short-link queue once
+After=network.target shortlinkbridge.service
+Requires=shortlinkbridge.service
+
+[Service]
+Type=oneshot
+Environment=BRIDGE_API_KEY=CHANGE_ME_BRIDGE_API_KEY
+ExecStart=/usr/bin/curl -sS -X POST "http://127.0.0.1:5014/api/queue/process?batchSize=50" -H "X-Api-Key: ${BRIDGE_API_KEY}" --max-time 30

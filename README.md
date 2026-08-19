@@ -1,32 +1,28 @@
 # ShortLinkBridge
 
-میکروسرویس سبک برای پردازش صف لینک کوتاه در دیتابیس.
+میکروسرویس پردازش صف لینک کوتاه. کنار `short-links` روی همان سرور لینوکس اجرا می‌شود.
+
+جاب داخل خود سرویس است (هر ۱۰ ثانیه صف را می‌خواند). SQL Agent لازم نیست.
 
 ## جریان کار
 
 ```
-MapPoints INSERT/UPDATE
+ثبت نقطه در MapPoints
         │
         ▼
-  SQL Trigger ──► ShortLinkQueue (Status=Pending)
+VisitLink خودکار (ستون محاسباتی)
         │
         ▼
- SQL Agent Job (هر ۱۰ ثانیه)
+Trigger → ShortLinkQueue
         │
         ▼
- POST /api/queue/process  ──►  ShortLinkBridge
-        │                           │
-        │                           ▼
-        │                    POST /api/links/batch
-        │                           │
-        │                           ▼
-        │                      ShortLinks API
-        │                           │
-        ▼                           ▼
- UPDATE MapPoints.ShortVisitLink ◄───┘
+ShortLinkBridge (جاب داخلی، هر ۱۰ ثانیه)
+        │
+        ▼
+ShortLinks API → ShortVisitLink ذخیره می‌شود
 ```
 
-## اجرا
+## اجرا در توسعه
 
 ```bash
 cd short-link-bridge/src/ShortLinkBridge.Api
@@ -37,18 +33,17 @@ dotnet run
 
 | کلید | توضیح |
 |---|---|
-| `ConnectionStrings:QueueDatabase` | دیتابیسی که جدول `ShortLinkQueue` در آن است |
-| `ShortLinks:BaseUrl` | آدرس سرویس کوتاه‌کننده (مثلاً `http://127.0.0.1:5013`) |
-| `Security:ApiKey` | کلید احراز هویت برای SQL Agent Job |
-| `Queue:BatchSize` | تعداد رکورد در هر اجرا (پیش‌فرض ۵۰) |
-
-## SQL Agent
-
-اسکریپت `location/Scripts/004_CreateSqlAgentJob.sql` را با آدرس و ApiKey واقعی اجرا کنید.
+| `ConnectionStrings:QueueDatabase` | دیتابیس نقشه (`apiweb-locationsmap`) |
+| `ShortLinks:BaseUrl` | آدرس سرویس کوتاه‌کننده (`http://127.0.0.1:5013`) |
+| `Security:ApiKey` | کلید احراز هویت برای فراخوانی دستی |
+| `Queue:BatchSize` | تعداد رکورد در هر اجرا |
+| `Queue:PollIntervalSeconds` | فاصله جاب داخلی (پیش‌فرض ۱۰) |
 
 ## تست دستی
 
 ```bash
-curl -X POST "http://localhost:5014/api/queue/process?batchSize=10" \
+curl -X POST "http://127.0.0.1:5014/api/queue/process?batchSize=10" \
   -H "X-Api-Key: CHANGE_ME_BRIDGE_API_KEY"
+
+curl http://127.0.0.1:5014/api/queue/health
 ```

@@ -13,6 +13,7 @@ builder.Services.AddHttpClient<ShortLinksApiClient>((sp, client) =>
 });
 
 builder.Services.AddSingleton<ShortLinkQueueProcessor>();
+builder.Services.AddHostedService<QueueProcessorHostedService>();
 
 var app = builder.Build();
 
